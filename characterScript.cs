@@ -6,7 +6,7 @@ public class characterScript : MonoBehaviour
 {
     Animator _animator;
     SpriteRenderer sprite;
-    [SerializeField] private float walkSpeed, jumpSpeed;
+    [SerializeField] private float walkSpeed, jumpSpeed, coyoteTime, coyoteTimeSet;
     public bool onGround, toRight, toLeft, toGround, jumpPressed;
 
     private string
@@ -15,6 +15,9 @@ public class characterScript : MonoBehaviour
         run_anim_str = "run",
         current_anim;
 
+    [Header("All Sounds")]
+    [SerializeField] private AudioSource itemTakenSound;
+    [SerializeField] private AudioSource jumpSound;
 
     // BUGS
     // IF YOU MOVE AND YOU TAP THE TILEMAP TOO, THE CHARACTER WILL ACT WEIRD
@@ -53,7 +56,7 @@ public class characterScript : MonoBehaviour
             } else { toLeft = false; }
         }
 
-        RaycastHit2D[] raysDown = Physics2D.RaycastAll(gameObject.transform.position, Vector2.down, 2.5f);
+        RaycastHit2D[] raysDown = Physics2D.RaycastAll(gameObject.transform.position, Vector2.down, 2.8f);
 
         foreach (RaycastHit2D hit in raysDown)
         {
@@ -83,6 +86,14 @@ public class characterScript : MonoBehaviour
                 if (hit.transform.CompareTag("forwardButton")) 
                 {
                     sprite.flipX = false;
+                    /*if (Input.GetTouch(i).phase == TouchPhase.Stationary || Input.GetTouch(i).phase == TouchPhase.Moved)
+                    {
+                        hit.collider.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1); // Mathf.Lerp());
+                    }
+                    else if (Input.GetTouch(i).phase == TouchPhase.Ended)
+                    {
+                        hit.collider.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.40f);
+                    }*/
 
                     if (!toRight)
                     {
@@ -94,7 +105,11 @@ public class characterScript : MonoBehaviour
                     {
                         setCurrentStateTo(run_anim_str);
                     }
-                } 
+                }
+                /*else if (!hit.transform.CompareTag("forwardButton"))
+                {
+                    // hit.collider.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.81f);
+                }*/
 
                 // MOVING BACKWARDS (-FORWARD)
                 else if (hit.transform.CompareTag("backwardButton")) 
@@ -114,11 +129,12 @@ public class characterScript : MonoBehaviour
                 }
 
                 // JUMP 
-                else if (hit.transform.CompareTag("jumpButton") && Input.GetTouch(i).phase == TouchPhase.Began && onGround)
+                else if (hit.transform.CompareTag("jumpButton") && Input.GetTouch(i).phase == TouchPhase.Began && onGround ||
+                    hit.transform.CompareTag("jumpButton") && Input.GetTouch(i).phase == TouchPhase.Began && !toGround && coyoteTime >= 0)
                 {
+                    jumpSound.Play();
                     jumpPressed = true;
                     GetComponent<Rigidbody2D>().velocity = new Vector3(0f, jumpSpeed, 0f);
-                    
                 }
 
                 // THIS PREVENTS THE JUMP ANIMATION TO KEEP LOOPING IF YOU KEEP THE JUMP BUTTON PRESSED
@@ -133,6 +149,7 @@ public class characterScript : MonoBehaviour
                 {
                     Debug.Log("this");
                     setCurrentStateTo(idle_anim_str);
+                    //hit.collider.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.40f);
 
                 }
 
@@ -141,11 +158,15 @@ public class characterScript : MonoBehaviour
         }
         // set x axix to make if x > 1 && !onground >> not idle
 
-        
+        if (onGround)
+        {
+            coyoteTime = coyoteTimeSet;
+        }
     
 
         if (!onGround)
         {
+            coyoteTime -= Time.deltaTime;
             setCurrentStateTo(jump_anim_str);
         }
 
@@ -160,21 +181,6 @@ public class characterScript : MonoBehaviour
             setCurrentStateTo(idle_anim_str);
         }
 
-        //Debug.Log(_animator.GetCurrentAnimatorClipInfo(0)[0].clip.name);
-
-        /*Ray rayFromCamera2nd = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
-        RaycastHit hit2nd;
-
-        if (Physics.Raycast(rayFromCamera2nd, out hit2nd, 100))
-        {
-            if (hit2nd.transform.CompareTag("jumpButton") && Input.GetTouch(0).phase == TouchPhase.Moved && onGround && _animator.GetBool(run_anim_str) ||
-                    hit2nd.transform.CompareTag("jumpButton") && Input.GetTouch(0).phase == TouchPhase.Stationary && onGround && _animator.GetBool(run_anim_str))
-            {
-                Debug.Log("this");
-                setCurrentStateTo(idle_anim_str);
-            }
-        }*/
-
 
     }
 
@@ -186,5 +192,15 @@ public class characterScript : MonoBehaviour
 
         current_anim = newState;
 
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("item"))
+        {
+            collision.GetComponent<CircleCollider2D>().enabled = false;
+            collision.GetComponent<Animator>().SetBool("taken", true);
+            itemTakenSound.Play();
+        }
     }
 }
