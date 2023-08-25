@@ -5,6 +5,7 @@ using UnityEngine;
 public class characterScript : MonoBehaviour
 {
     Animator _animator;
+    public joystickX joystickInput;
     SpriteRenderer sprite;
     [SerializeField] private float walkSpeed, jumpSpeed, coyoteTime, coyoteTimeSet;
     public bool onGround, toRight, toLeft, toGround, jumpPressed;
@@ -68,7 +69,9 @@ public class characterScript : MonoBehaviour
             else { toGround = false; }
         }
 
-        for (int i = 0; i < Input.touchCount; i++)
+
+        // REPLACED BY EXTERNAL INPUT .CS
+        /*for (int i = 0; i < Input.touchCount; i++)
         {
             Ray rayFromCamera = Camera.main.ScreenPointToRay(Input.touches[i].position);
             RaycastHit hit;
@@ -86,14 +89,14 @@ public class characterScript : MonoBehaviour
                 if (hit.transform.CompareTag("forwardButton")) 
                 {
                     sprite.flipX = false;
-                    /*if (Input.GetTouch(i).phase == TouchPhase.Stationary || Input.GetTouch(i).phase == TouchPhase.Moved)
+                    *//*if (Input.GetTouch(i).phase == TouchPhase.Stationary || Input.GetTouch(i).phase == TouchPhase.Moved)
                     {
                         hit.collider.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1); // Mathf.Lerp());
                     }
                     else if (Input.GetTouch(i).phase == TouchPhase.Ended)
                     {
                         hit.collider.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.40f);
-                    }*/
+                    }*//*
 
                     if (!toRight)
                     {
@@ -106,10 +109,10 @@ public class characterScript : MonoBehaviour
                         setCurrentStateTo(run_anim_str);
                     }
                 }
-                /*else if (!hit.transform.CompareTag("forwardButton"))
+                *//*else if (!hit.transform.CompareTag("forwardButton"))
                 {
                     // hit.collider.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.81f);
-                }*/
+                }*//*
 
                 // MOVING BACKWARDS (-FORWARD)
                 else if (hit.transform.CompareTag("backwardButton")) 
@@ -155,11 +158,32 @@ public class characterScript : MonoBehaviour
 
             }
             
-        }
+        }*/
         // set x axix to make if x > 1 && !onground >> not idle
+
+        transform.position = new Vector2(transform.position.x + joystickInput.movementX * walkSpeed * Time.deltaTime, transform.position.y);
+
+        // CHECK THIS LATER ON, BOTH BOOLS CANT BE CHECKED AT THE SAME TIME
+        /*if (!toLeft)
+        {
+            transform.position = new Vector2(transform.position.x + joystickInput.movementX * walkSpeed * Time.deltaTime, transform.position.y);
+        }
+
+        if (!toRight)
+        {
+            transform.position = new Vector2(transform.position.x - joystickInput.movementX * walkSpeed * Time.deltaTime, transform.position.y);
+        }
+*/
+        if (joystickInput.touchedJumpButton)
+        {
+            GetComponent<Rigidbody2D>().velocity = new Vector3(0f, jumpSpeed, 0f);
+            joystickInput.touchedJumpButton = false;
+
+        }
 
         if (onGround)
         {
+            joystickInput.touchedJumpButton = false;
             coyoteTime = coyoteTimeSet;
         }
     
@@ -174,9 +198,10 @@ public class characterScript : MonoBehaviour
 
         // SECON PARAMETER = WHEN YOU RUN, JUMP, AND KEEP THE JUMP BUTTON PRESSED, AND THE SUDDENLY RELEASE THE MOVE BUTTON THE RUN ANIMATION WILL KEEP LOOPIN WITHOUT POSITION CHANGE
         // THIS MAKES SURE THAT IF THERE'S 1 TOUCH AND IT IS ON THE JUMP BUTTON THE ANIMATION WILL CHANGE TO IDLE 
-        if (Input.touchCount <= 0 && onGround || Input.touchCount == 1 && onGround && jumpPressed)
+        if (Input.touchCount <= 0 && onGround || Input.touchCount == 1 && onGround) // REPLACED BY EXTERNAL INPUT .CS // && jumpPressed)
         {
-            jumpPressed = false;
+            // REPLACED BY EXTERNAL INPUT .CS
+            // jumpPressed = false;
 
             setCurrentStateTo(idle_anim_str);
         }

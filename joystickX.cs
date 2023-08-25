@@ -5,15 +5,17 @@ using UnityEngine;
 public class joystickX : MonoBehaviour
 {
     Vector2 referenceInitialPos, joystickInitialPos;
+    public characterScript character;
     public GameObject characterToMove, reference, joystick;
-    public bool touchedJoyWhenOnCenter;
+    public bool touchedJoyWhenOnCenter, touchedJumpButton;
     public int touchIndexTouchedJoystick, touchCount, walkSpeed, jumpSpeed;
-    private float movementX;
+    public float movementX;
     void Start()
     {
         referenceInitialPos = reference.transform.position;
         joystickInitialPos = transform.position;
         touchedJoyWhenOnCenter = false;
+        touchedJumpButton = true;
     }
 
     // BUGS TO FIX
@@ -38,9 +40,16 @@ public class joystickX : MonoBehaviour
                     touchIndexTouchedJoystick = i;
                 }
 
-                if (hit.transform.CompareTag("jumpButton"))
+                // WE MUST REQUIRE AN EXTERNAL INPUT FORM THE CHARACTER (public bool onGround) TO SET IT IN THIS IF, OTHERWISE IT WILL KEEP JUMPING FOREVER WHEN .Began
+                if (hit.transform.CompareTag("jumpButton") && Input.GetTouch(i).phase == TouchPhase.Began && character.onGround)
                 {
-                    characterToMove.GetComponent<Rigidbody2D>().velocity = new Vector3(0f, jumpSpeed, 0f);
+                    // THIS VALUE MUST BE SET BACK TO FALSE EXTERNALLY (WHEN CHARACTER TOUCHES THE GROUND AGAIN)
+                    touchedJumpButton = true;
+                }
+
+                else if (true)
+                {
+
                 }
             }
 
@@ -80,20 +89,19 @@ public class joystickX : MonoBehaviour
             // THIS WILL SIMPLY FLIP THE SPRITE ON ITS X AXIS
             if (touchV.x >= 0 || touchV.x > 0)
             {
-                movementX = 1;
+                movementX = 1;  // TO MODIFY
                 GetComponent<SpriteRenderer>().flipX = false;
-                characterToMove.GetComponent<SpriteRenderer>().flipX = false;
+                // characterToMove.GetComponent<SpriteRenderer>().flipX = false; // TO MODIFY
             }
             else if (touchV.x < 0)
             {
                 movementX = -1;
                 GetComponent<SpriteRenderer>().flipX = true;
-                characterToMove.GetComponent<SpriteRenderer>().flipX = true;
+                // characterToMove.GetComponent<SpriteRenderer>().flipX = true; // TO MODIFY
             }
 
             // CHARACTER MOVES
-            // characterToMove.transform.position = new Vector2(characterToMove.transform.position.x + transform.localPosition.x * walkSpeed * Time.deltaTime, characterToMove.transform.position.y);
-            characterToMove.transform.position = new Vector2(characterToMove.transform.position.x + movementX * walkSpeed * Time.deltaTime, characterToMove.transform.position.y);
+            // characterToMove.transform.position = new Vector2(characterToMove.transform.position.x + movementX * walkSpeed * Time.deltaTime, characterToMove.transform.position.y); // TO MODIFY
 
 
         }
@@ -108,6 +116,7 @@ public class joystickX : MonoBehaviour
             touchedJoyWhenOnCenter = false;
             joystick.GetComponent<BoxCollider>().enabled = true;
             touchIndexTouchedJoystick = -1;
+            movementX = 0;
         }
 
         if (touchIndexTouchedJoystick > Input.touchCount)
