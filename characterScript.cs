@@ -7,6 +7,7 @@ public class characterScript : MonoBehaviour
     Vector2 doNothingVector;
     Animator _animator;
     public joystickX joystickInput;
+    
     SpriteRenderer sprite;
     [SerializeField] private float walkSpeed, jumpSpeed, coyoteTime, coyoteTimeSet;
     public bool onGround, toRight, toLeft, toGround, jumpPressed;
@@ -36,29 +37,6 @@ public class characterScript : MonoBehaviour
     void Update()
     {
         doNothingVector = new Vector2(transform.position.x, transform.position.y);
-
-        RaycastHit2D[] raysToRight = Physics2D.RaycastAll(gameObject.transform.position, Vector2.right, 1f);
-
-        foreach (RaycastHit2D hit in raysToRight)
-        {
-            if (hit.transform.tag == "ground")
-            {
-                toRight = true;
-                Debug.DrawRay(transform.position, Vector2.right * hit.distance, Color.red);
-            } else { toRight = false; } 
-
-        }
-
-        RaycastHit2D[] raysToLeft = Physics2D.RaycastAll(gameObject.transform.position, Vector2.left, 1f);
-
-        foreach (RaycastHit2D hit in raysToLeft)
-        {
-            if (hit.transform.tag == "ground")
-            {
-                toLeft = true;
-                Debug.DrawRay(transform.position, Vector2.left * hit.distance, Color.blue);
-            } else { toLeft = false; }
-        }
 
         RaycastHit2D[] raysDown = Physics2D.RaycastAll(gameObject.transform.position, Vector2.down, 2.8f);
 
