@@ -8,14 +8,33 @@ public class joystickX : MonoBehaviour
     Vector2 referenceInitialPos;
     // This must be the Joystick initial position so that it can be set back to its original position if no input detected
     Vector2 joystickInitialPos;
+    // This will be the scale of the jump button when pressed
+    private float toScaleButtonOnPressed = 0.7f;
+    // Jump button will be scaled to
+    Vector2 toScaleButtonVector2;
+    // Original size of jump button
+    Vector2 originalButtonSize;
+
+    [Tooltip("To get the on ground bool")]
     public characterScript character;
-    public GameObject characterToMove, reference, joystick;
-    [SerializeField] private bool touchedJoyWhenOnCenter;
+    [Tooltip("Reference point for the camera offset")] 
+    public GameObject reference;
+    [Tooltip("Joystick")]
+    public GameObject joystick;
+    [Tooltip("Jump button")]
+    public GameObject jumpButton;
+    private bool touchedJoyWhenOnCenter;
+    // This bool will be accessed from the movement.cs for the jump
+    [Tooltip("This bool will be accessed from the movement.cs for the jump")]
     public bool touchedJumpButton;
-    [SerializeField] private int touchIndexTouchedJoystick;
+    private int touchIndexTouchedJoystick;
+    [Tooltip("movement output on the X axis")]
     public float movementX;
+
     void Start()
     {
+        originalButtonSize = jumpButton.transform.localScale;
+        toScaleButtonVector2 = new Vector2(toScaleButtonOnPressed, toScaleButtonOnPressed);
         referenceInitialPos = reference.transform.position;
         joystickInitialPos = transform.position;
         touchedJoyWhenOnCenter = false;
@@ -36,11 +55,6 @@ public class joystickX : MonoBehaviour
 
             if (Physics.Raycast(ray, out hit, 100))
             {
-                /*if (i == 0 && hit.transform.CompareTag("jumpButton") && Input.GetTouch(i).phase == TouchPhase.Moved || i == 0 && hit.transform.CompareTag("jumpButton") && Input.GetTouch(i).phase == TouchPhase.Stationary)
-                {
-                    continue; 
-                }*/
-
                 if (hit.transform.CompareTag("joystickX"))
                 {
                     touchedJoyWhenOnCenter = true;
@@ -53,12 +67,22 @@ public class joystickX : MonoBehaviour
                 {
                     // THIS VALUE MUST BE SET BACK TO FALSE EXTERNALLY (WHEN CHARACTER TOUCHES THE GROUND AGAIN)
                     touchedJumpButton = true;
+
+                    //
+                    hit.collider.gameObject.transform.localScale = toScaleButtonVector2;
+                    //StartCoroutine(setBackButtonToNormalSize(hit.collider.gameObject, toScaleButtonVector2));
                 }
 
-                /*if (hit.transform.CompareTag("jumpButton") && Input.GetTouch(i).phase == TouchPhase.Moved && character.onGround || hit.transform.CompareTag("jumpButton") && Input.GetTouch(i).phase == TouchPhase.Stationary && character.onGround)
+                if (hit.transform.CompareTag("jumpButton") && Input.GetTouch(i).phase == TouchPhase.Began)
                 {
-                    break;
-                }*/
+                    //
+                    hit.collider.gameObject.transform.localScale = toScaleButtonVector2;
+                }
+
+                if (hit.transform.CompareTag("jumpButton") && Input.GetTouch(i).phase == TouchPhase.Ended)
+                {
+                    hit.collider.gameObject.transform.localScale = originalButtonSize;
+                }
 
             }
   
@@ -79,11 +103,7 @@ public class joystickX : MonoBehaviour
             if (touchV.x > 10f)
             {
                 touchedJoyWhenOnCenter = false;
-            }/* I DELETED THIS ELSE BECAUSE DIDN'T SEEM TO BE NEEDED ANYMORE
-            else if (touchV.x < -4f)
-            {
-                touchedJoyWhenOnCenter = false;
-            }*/
+            }
 
             // THIS IS FOR THE JOYSTICK NOT TO GO OUTSITE ITS CONTAINER // THIS IS BEING APPLIED TO THE VECTOR GOTTEN FORM THE INPUT.TOUCH -
             // THIS CAN/SHOULD ALSO BE APPLIED TO THE JOYSTICK POSITION INSTEAD OF THE VECTOR GOTTEM FROM THE INPUT
@@ -121,5 +141,14 @@ public class joystickX : MonoBehaviour
             movementX = 0;
         }
 
+    }
+
+    // THIS WASN'T USED
+    IEnumerator setBackButtonToNormalSize(GameObject buttonToSetBackToNormal, Vector2 sizeOnPressed)
+    {
+        Vector2 originalSize = buttonToSetBackToNormal.transform.localScale;
+        buttonToSetBackToNormal.transform.localScale = sizeOnPressed;
+        yield return new WaitForSeconds(0.1f);
+        buttonToSetBackToNormal.transform.localScale = originalSize;
     }
 }
