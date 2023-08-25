@@ -35,8 +35,9 @@ public class joystickX : MonoBehaviour
     {
         originalButtonSize = jumpButton.transform.localScale;
         toScaleButtonVector2 = new Vector2(toScaleButtonOnPressed, toScaleButtonOnPressed);
-        referenceInitialPos = reference.transform.position;
-        joystickInitialPos = transform.position;
+        referenceInitialPos = new Vector2(0, 0);
+        joystickInitialPos = new Vector2(0, 0);
+        Debug.Log(joystickInitialPos);
         touchedJoyWhenOnCenter = false;
         touchedJumpButton = true;
     }
@@ -132,8 +133,9 @@ public class joystickX : MonoBehaviour
         if (Input.touchCount <= 0 || !touchedJoyWhenOnCenter || touchIndexTouchedJoystick == Input.touchCount)
         {
             // THIS WILL SET THE REFERENCE AND THE JOYSTICK BACK TO THEIR ORIGINAL POSITION IF NO TOUCH DETECTED
-            reference.transform.position = referenceInitialPos;
-            transform.position = joystickInitialPos;
+            reference.transform.localPosition = referenceInitialPos;
+            transform.localPosition = joystickInitialPos;
+            Debug.Log(joystickInitialPos);
             GetComponent<SpriteRenderer>().flipX = false;
             touchedJoyWhenOnCenter = false;
             joystick.GetComponent<BoxCollider>().enabled = true;
