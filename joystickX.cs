@@ -4,11 +4,15 @@ using UnityEngine;
 
 public class joystickX : MonoBehaviour
 {
-    Vector2 referenceInitialPos, joystickInitialPos;
+    // "This object will be used as the offset for our touch x, -x and it must perfectly align with the joystick x axis
+    Vector2 referenceInitialPos;
+    // This must be the Joystick initial position so that it can be set back to its original position if no input detected
+    Vector2 joystickInitialPos;
     public characterScript character;
     public GameObject characterToMove, reference, joystick;
-    public bool touchedJoyWhenOnCenter, touchedJumpButton;
-    public int touchIndexTouchedJoystick, touchCount, walkSpeed, jumpSpeed;
+    [SerializeField] private bool touchedJoyWhenOnCenter;
+    public bool touchedJumpButton;
+    [SerializeField] private int touchIndexTouchedJoystick;
     public float movementX;
     void Start()
     {
@@ -24,8 +28,7 @@ public class joystickX : MonoBehaviour
 
     void Update()
     {
-        touchCount = Input.touchCount;
-        //if (Input.touchCount >= 1)
+
         for (int i = 0; i < Input.touchCount; i++)
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.GetTouch(i).position);
@@ -33,6 +36,11 @@ public class joystickX : MonoBehaviour
 
             if (Physics.Raycast(ray, out hit, 100))
             {
+                /*if (i == 0 && hit.transform.CompareTag("jumpButton") && Input.GetTouch(i).phase == TouchPhase.Moved || i == 0 && hit.transform.CompareTag("jumpButton") && Input.GetTouch(i).phase == TouchPhase.Stationary)
+                {
+                    continue; 
+                }*/
+
                 if (hit.transform.CompareTag("joystickX"))
                 {
                     touchedJoyWhenOnCenter = true;
@@ -47,13 +55,13 @@ public class joystickX : MonoBehaviour
                     touchedJumpButton = true;
                 }
 
-                else if (true)
+                /*if (hit.transform.CompareTag("jumpButton") && Input.GetTouch(i).phase == TouchPhase.Moved && character.onGround || hit.transform.CompareTag("jumpButton") && Input.GetTouch(i).phase == TouchPhase.Stationary && character.onGround)
                 {
+                    break;
+                }*/
 
-                }
             }
-
-            
+  
         }
 
         // MOVING THE JOYSTICK
@@ -81,8 +89,6 @@ public class joystickX : MonoBehaviour
             // THIS CAN/SHOULD ALSO BE APPLIED TO THE JOYSTICK POSITION INSTEAD OF THE VECTOR GOTTEM FROM THE INPUT
             touchV.x = Mathf.Clamp(touchV.x, -1.2f, 1.2f);
 
-            
-
             // THIS WILL SET THE JOYSTICK POSITION TO THE CALCULATED POITION
             transform.localPosition = new Vector2(touchV.x, 0f);
 
@@ -100,10 +106,6 @@ public class joystickX : MonoBehaviour
                 // characterToMove.GetComponent<SpriteRenderer>().flipX = true; // TO MODIFY
             }
 
-            // CHARACTER MOVES
-            // characterToMove.transform.position = new Vector2(characterToMove.transform.position.x + movementX * walkSpeed * Time.deltaTime, characterToMove.transform.position.y); // TO MODIFY
-
-
         }
 
         // NO TOUH AT ALL
@@ -119,12 +121,5 @@ public class joystickX : MonoBehaviour
             movementX = 0;
         }
 
-        if (touchIndexTouchedJoystick > Input.touchCount)
-        {
-
-        }
-
-
-        //ScreenToViewportPoint, ViewportToScreenPoint 
     }
 }

@@ -174,6 +174,20 @@ public class characterScript : MonoBehaviour
             transform.position = new Vector2(transform.position.x - joystickInput.movementX * walkSpeed * Time.deltaTime, transform.position.y);
         }
 */
+        if (joystickInput.movementX > 0)
+        {
+            sprite.flipX = false;
+        }
+        else if (joystickInput.movementX < 0)
+        {
+            sprite.flipX = true;
+        }
+
+        if (onGround && joystickInput.movementX != 0)
+        {
+            setCurrentStateTo(run_anim_str);
+        }
+
         if (joystickInput.touchedJumpButton)
         {
             GetComponent<Rigidbody2D>().velocity = new Vector3(0f, jumpSpeed, 0f);
@@ -196,9 +210,10 @@ public class characterScript : MonoBehaviour
 
         // IDLE
 
-        // SECON PARAMETER = WHEN YOU RUN, JUMP, AND KEEP THE JUMP BUTTON PRESSED, AND THE SUDDENLY RELEASE THE MOVE BUTTON THE RUN ANIMATION WILL KEEP LOOPIN WITHOUT POSITION CHANGE
+        // SECON PARAMETER (DELTED, REPLACED BY EXTERNAL INPUT .CS) = WHEN YOU RUN, JUMP, AND KEEP THE JUMP BUTTON PRESSED, AND THE SUDDENLY RELEASE THE MOVE BUTTON THE RUN ANIMATION WILL KEEP LOOPIN WITHOUT POSITION CHANGE
         // THIS MAKES SURE THAT IF THERE'S 1 TOUCH AND IT IS ON THE JUMP BUTTON THE ANIMATION WILL CHANGE TO IDLE 
-        if (Input.touchCount <= 0 && onGround || Input.touchCount == 1 && onGround) // REPLACED BY EXTERNAL INPUT .CS // && jumpPressed)
+        if (Input.touchCount <= 0 && onGround || Input.touchCount == 1 && onGround && _animator.GetCurrentAnimatorClipInfo(0)[0].clip.name == jump_anim_str
+            || Input.touchCount == 1 && onGround && joystickInput.movementX == 0 && _animator.GetCurrentAnimatorClipInfo(0)[0].clip.name == run_anim_str) // || Input.touchCount == 1 && onGround) // REPLACED BY EXTERNAL INPUT .CS // && jumpPressed)
         {
             // REPLACED BY EXTERNAL INPUT .CS
             // jumpPressed = false;
