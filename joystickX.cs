@@ -5,11 +5,13 @@ using UnityEngine;
 public class joystickX : MonoBehaviour
 {
     Vector2 referenceInitialPos, joystickInitialPos;
-    public GameObject reference;
+    public GameObject reference, joystick;
+    public bool touchedOnColider;
     void Start()
     {
         referenceInitialPos = reference.transform.position;
         joystickInitialPos = transform.position;
+        touchedOnColider = false;
     }
 
     // -2.789999 Y
@@ -25,32 +27,36 @@ public class joystickX : MonoBehaviour
             {
                 if (hit.transform.CompareTag("joystickX"))
                 {
-                    // THIS OFFSET = IS JUST THE POSITION OF THE REFERENCE POINT FOR THE BACK AND FORTH POINT OF THE JOYSTICK
-                    Vector3 offset = new Vector3(reference.transform.position.x, reference.transform.position.y, reference.transform.position.z);
-
-                    // THIS VECTOR IS THE VECTOR OF THE TOUCH WITHIN THE CAMERA CONTAINER (ScreenToWorldPoint) MINUS THE OFFSET ABOVE
-                    Vector2 touchV = Camera.main.ScreenToWorldPoint(Input.GetTouch(i).position) - offset;
-
-                    // THIS IS FOR THE JOYSTICK NOT TO GO OUTSITE ITS CONTAINER
-                    touchV.x = Mathf.Clamp(touchV.x, -2, 2);
-
-                    // THIS WILL SET THE JOYSTICK POSITION TO THE CALCULATED POITION
-                    transform.localPosition = new Vector2(touchV.x, 0f);
-
-                    if (touchV.x >= 0)
-                    {
-                        GetComponent<SpriteRenderer>().flipX = false;
-                    }
-                    else if (touchV.x < 0)
-                    {
-                        GetComponent<SpriteRenderer>().flipX = true;
-                    }
+                    touchedOnColider = true;
+                    joystick.GetComponent<BoxCollider>().enabled = false;
                 }
             }
 
             
+        }
 
-            //Debug.Log(touchV.x);
+        if (Input.touchCount > 0 && touchedOnColider)
+        {
+            // THIS OFFSET = IS JUST THE POSITION OF THE REFERENCE POINT FOR THE BACK AND FORTH POINT OF THE JOYSTICK
+            Vector3 offset = new Vector3(reference.transform.position.x, reference.transform.position.y, reference.transform.position.z);
+
+            // THIS VECTOR IS THE VECTOR OF THE TOUCH WITHIN THE CAMERA CONTAINER (ScreenToWorldPoint) MINUS THE OFFSET ABOVE
+            Vector2 touchV = Camera.main.ScreenToWorldPoint(Input.GetTouch(0).position) - offset;
+
+            // THIS IS FOR THE JOYSTICK NOT TO GO OUTSITE ITS CONTAINER
+            touchV.x = Mathf.Clamp(touchV.x, -2, 2);
+
+            // THIS WILL SET THE JOYSTICK POSITION TO THE CALCULATED POITION
+            transform.localPosition = new Vector2(touchV.x, 0f);
+
+            if (touchV.x >= 0)
+            {
+                GetComponent<SpriteRenderer>().flipX = false;
+            }
+            else if (touchV.x < 0)
+            {
+                GetComponent<SpriteRenderer>().flipX = true;
+            } 
         }
 
         if (Input.touchCount <= 0)
@@ -59,6 +65,8 @@ public class joystickX : MonoBehaviour
             reference.transform.position = referenceInitialPos;
             transform.position = joystickInitialPos;
             GetComponent<SpriteRenderer>().flipX = false;
+            touchedOnColider = false;
+            joystick.GetComponent<BoxCollider>().enabled = true;
         }
 
 
