@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class characterScript : MonoBehaviour
 {
+    Vector2 doNothingVector;
     Animator _animator;
     public joystickX joystickInput;
     SpriteRenderer sprite;
@@ -34,6 +35,8 @@ public class characterScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        doNothingVector = new Vector2(transform.position.x, transform.position.y);
+
         RaycastHit2D[] raysToRight = Physics2D.RaycastAll(gameObject.transform.position, Vector2.right, 1f);
 
         foreach (RaycastHit2D hit in raysToRight)
@@ -69,19 +72,19 @@ public class characterScript : MonoBehaviour
             else { toGround = false; }
         }
 
-        transform.position = new Vector2(transform.position.x + joystickInput.movementX * walkSpeed * Time.deltaTime, transform.position.y);
-
-        // CHECK THIS LATER ON, BOTH BOOLS CANT BE CHECKED AT THE SAME TIME
-        /*if (!toLeft)
+        // CHARACTER MOVEMENT
+        if (toRight && joystickInput.movementX > 0)
         {
-            transform.position = new Vector2(transform.position.x + joystickInput.movementX * walkSpeed * Time.deltaTime, transform.position.y);
-        }
+            transform.position = doNothingVector;
+        } 
 
-        if (!toRight)
+        else if (toLeft && joystickInput.movementX < 0)
         {
-            transform.position = new Vector2(transform.position.x - joystickInput.movementX * walkSpeed * Time.deltaTime, transform.position.y);
+            transform.position = doNothingVector;
         }
-*/
+        else { transform.position = new Vector2(transform.position.x + joystickInput.movementX * walkSpeed * Time.deltaTime, transform.position.y); }
+
+        // SIMPLE FLIP OF CHARACTER SPRITE
         if (joystickInput.movementX > 0)
         {
             sprite.flipX = false;
@@ -91,11 +94,13 @@ public class characterScript : MonoBehaviour
             sprite.flipX = true;
         }
 
+        // RUNNING ANIMATION IF INPUT.MOVEMENTX HAS A VALUE
         if (onGround && joystickInput.movementX != 0)
         {
             setCurrentStateTo(run_anim_str);
         }
 
+        // CHARACTER JUMP
         if (joystickInput.touchedJumpButton)
         {
             GetComponent<Rigidbody2D>().velocity = new Vector3(0f, jumpSpeed, 0f);
@@ -103,6 +108,14 @@ public class characterScript : MonoBehaviour
 
         }
 
+        // ON AIR
+        if (!onGround)
+        {
+            coyoteTime -= Time.deltaTime;
+            setCurrentStateTo(jump_anim_str);
+        }
+
+        // ON GROUND IDLE
         if (onGround)
         {
             joystickInput.touchedJumpButton = false;
@@ -110,13 +123,9 @@ public class characterScript : MonoBehaviour
         }
     
 
-        if (!onGround)
-        {
-            coyoteTime -= Time.deltaTime;
-            setCurrentStateTo(jump_anim_str);
-        }
+        
 
-        // IDLE
+        // IDLE (DONT REMEMBER WHAT I DID HERE)
 
         // SECON PARAMETER (DELTED, REPLACED BY EXTERNAL INPUT .CS) = WHEN YOU RUN, JUMP, AND KEEP THE JUMP BUTTON PRESSED, AND THE SUDDENLY RELEASE THE MOVE BUTTON THE RUN ANIMATION WILL KEEP LOOPIN WITHOUT POSITION CHANGE
         // THIS MAKES SURE THAT IF THERE'S 1 TOUCH AND IT IS ON THE JUMP BUTTON THE ANIMATION WILL CHANGE TO IDLE 
