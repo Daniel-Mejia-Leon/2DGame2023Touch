@@ -15,36 +15,40 @@ public class joystickX : MonoBehaviour
     // -2.789999 Y
     void Update()
     {
-        if (Input.touchCount >= 1)
+        //if (Input.touchCount >= 1)
+        for (int i = 0; i < Input.touchCount; i++)
         {
-            /*if (Input.GetTouch(0).phase == TouchPhase.Began)
+            Ray ray = Camera.main.ScreenPointToRay(Input.GetTouch(i).position);
+            RaycastHit hit;
+
+            if (Physics.Raycast(ray, out hit, 100))
             {
-                //Debug.Log(Input.GetTouch(0).position);
+                if (hit.transform.CompareTag("joystickX"))
+                {
+                    // THIS OFFSET = IS JUST THE POSITION OF THE REFERENCE POINT FOR THE BACK AND FORTH POINT OF THE JOYSTICK
+                    Vector3 offset = new Vector3(reference.transform.position.x, reference.transform.position.y, reference.transform.position.z);
 
-                // THIS WILL MOVE THE REFERENCE POINT TO ANYWHERE THE TOUCH STARTS. THIS MUST CHANGE THOU BECAUSE THE USER HAS TO TAP ON THE JOYSTICK NOT ANYWHERE
-                reference.transform.position = Camera.main.ScreenToWorldPoint(Input.GetTouch(0).position);
-            }*/
+                    // THIS VECTOR IS THE VECTOR OF THE TOUCH WITHIN THE CAMERA CONTAINER (ScreenToWorldPoint) MINUS THE OFFSET ABOVE
+                    Vector2 touchV = Camera.main.ScreenToWorldPoint(Input.GetTouch(i).position) - offset;
 
-            // THIS OFFSET = IS JUST THE POSITION OF THE REFERENCE POINT FOR THE BACK AND FORTH POINT OF THE JOYSTICK
-            Vector3 offset = new Vector3(reference.transform.position.x, reference.transform.position.y, reference.transform.position.z);
+                    // THIS IS FOR THE JOYSTICK NOT TO GO OUTSITE ITS CONTAINER
+                    touchV.x = Mathf.Clamp(touchV.x, -2, 2);
 
-            // THIS VECTOR IS THE VECTOR OF THE TOUCH WITHIN THE CAMERA CONTAINER (ScreenToWorldPoint) MINUS THE OFFSET ABOVE
-            Vector2 touchV = Camera.main.ScreenToWorldPoint(Input.GetTouch(0).position) - offset;
+                    // THIS WILL SET THE JOYSTICK POSITION TO THE CALCULATED POITION
+                    transform.localPosition = new Vector2(touchV.x, 0f);
+
+                    if (touchV.x >= 0)
+                    {
+                        GetComponent<SpriteRenderer>().flipX = false;
+                    }
+                    else if (touchV.x < 0)
+                    {
+                        GetComponent<SpriteRenderer>().flipX = true;
+                    }
+                }
+            }
+
             
-            // THIS IS FOR THE JOYSTICK NOT TO GO OUTSITE ITS CONTAINER
-            touchV.x = Mathf.Clamp(touchV.x, -2, 2);
-
-            // THIS WILL SET THE JOYSTICK POSITION TO THE CALCULATED POITION
-            transform.localPosition = new Vector2(touchV.x, 0f);
-
-            if (touchV.x >= 0)
-            {
-                GetComponent<SpriteRenderer>().flipX = false;
-            }
-            else if (touchV.x < 0)
-            {
-                GetComponent<SpriteRenderer>().flipX = true;
-            }
 
             //Debug.Log(touchV.x);
         }
