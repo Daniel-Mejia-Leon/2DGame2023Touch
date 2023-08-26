@@ -29,7 +29,8 @@ public class joystickX : MonoBehaviour
     public bool touchedJumpButton;
     private int touchIndexTouchedJoystick;
     [Tooltip("movement output on the X axis")]
-    public float movementX;
+    public float getAxisRaw, getAxisX;
+    public Vector2 touchV;
 
     void Start()
     {
@@ -45,6 +46,7 @@ public class joystickX : MonoBehaviour
     // BUGS TO FIX
     // 1: THERE'S A BUT WHERE IF YOU PUT SOME FINGERS ON THE JOYSTICK SIDE OF THE SCREEN, THEN, WHILE KEEP THOSE FINGERS PRESSING YOU PRESS THE JOYSTICK
     // THE JOYSTICK WILL ACT WEIRD, DECIDE NOT TO FIX THIS FOR NOW SINCE NO ONE WILL PUT 5 FINGERS WHERE JUST THE THUMB IS SUPPOSED TO BE
+    // 2: WHEN HOLDING THE JUMP BUTTON PRESSED AND SLIDE IT OUT OF THE BUTTON, THE BUTTON WILL GET STUCK IN ITS PRESSED ANIMATION (SCALE)
 
     void Update()
     {
@@ -71,13 +73,13 @@ public class joystickX : MonoBehaviour
 
                     //
                     hit.collider.gameObject.transform.localScale = toScaleButtonVector2;
-                    //StartCoroutine(setBackButtonToNormalSize(hit.collider.gameObject, toScaleButtonVector2));
+                    //StartCoroutine(setBackButtonToNormalSize(hit.collider.gameObject, originalButtonSize, toScaleButtonVector2));
                 }
 
                 if (hit.transform.CompareTag("jumpButton") && Input.GetTouch(i).phase == TouchPhase.Began)
                 {
-                    //
                     hit.collider.gameObject.transform.localScale = toScaleButtonVector2;
+                    //StartCoroutine(setBackButtonToNormalSize(hit.collider.gameObject, originalButtonSize, toScaleButtonVector2));
                 }
 
                 if (hit.transform.CompareTag("jumpButton") && Input.GetTouch(i).phase == TouchPhase.Ended)
@@ -96,7 +98,7 @@ public class joystickX : MonoBehaviour
             Vector3 offset = new Vector3(reference.transform.position.x, reference.transform.position.y, reference.transform.position.z);
 
             // THIS VECTOR IS THE VECTOR OF THE TOUCH WITHIN THE CAMERA CONTAINER (ScreenToWorldPoint) MINUS THE OFFSET ABOVE
-            Vector2 touchV = Camera.main.ScreenToWorldPoint(Input.GetTouch(touchIndexTouchedJoystick).position) - offset;
+            touchV = Camera.main.ScreenToWorldPoint(Input.GetTouch(touchIndexTouchedJoystick).position) - offset;
 
             // IF THE TOUCH GOES TO FAR AWAY ON X FROM THE JOYSTICK IT WILL NOT BE TAKEN AS INPUT ANYMORE,
             // THIS WAS SET TO AVOID THE JUMP BUTTON TO INTERRUPT WITH THE JOYSTICK MOVEMENT SINCE IF U REMOVE THIS AND LIFT UR BUTTON FROM THE JOYSTICK WHILE PRESSING THE
@@ -116,16 +118,18 @@ public class joystickX : MonoBehaviour
             // THIS WILL SIMPLY FLIP THE SPRITE ON ITS X AXIS
             if (touchV.x >= 0 || touchV.x > 0)
             {
-                movementX = 1;  // TO MODIFY
+                getAxisRaw = 1;  // TO MODIFY
                 GetComponent<SpriteRenderer>().flipX = false;
                 // characterToMove.GetComponent<SpriteRenderer>().flipX = false; // TO MODIFY
             }
             else if (touchV.x < 0)
             {
-                movementX = -1;
+                getAxisRaw = -1;
                 GetComponent<SpriteRenderer>().flipX = true;
                 // characterToMove.GetComponent<SpriteRenderer>().flipX = true; // TO MODIFY
             }
+
+            getAxisX = touchV.x;
 
         }
 
@@ -135,20 +139,27 @@ public class joystickX : MonoBehaviour
             // THIS WILL SET THE REFERENCE AND THE JOYSTICK BACK TO THEIR ORIGINAL POSITION IF NO TOUCH DETECTED
             reference.transform.localPosition = referenceInitialPos;
             transform.localPosition = joystickInitialPos;
-            Debug.Log(joystickInitialPos);
+            //Debug.Log(joystickInitialPos);
             GetComponent<SpriteRenderer>().flipX = false;
             touchedJoyWhenOnCenter = false;
             joystick.GetComponent<BoxCollider>().enabled = true;
             touchIndexTouchedJoystick = -1;
-            movementX = 0;
+            getAxisRaw = 0;
         }
+
+        if (transform.localPosition.x == 0)
+        {
+            touchV = new Vector2(0, 0);
+            getAxisX = 0f;
+        }
+
+        //Debug.Log(touchV.x);
 
     }
 
     // THIS WASN'T USED
-    IEnumerator setBackButtonToNormalSize(GameObject buttonToSetBackToNormal, Vector2 sizeOnPressed)
+    IEnumerator setBackButtonToNormalSize(GameObject buttonToSetBackToNormal, Vector2 originalSize, Vector2 sizeOnPressed)
     {
-        Vector2 originalSize = buttonToSetBackToNormal.transform.localScale;
         buttonToSetBackToNormal.transform.localScale = sizeOnPressed;
         yield return new WaitForSeconds(0.1f);
         buttonToSetBackToNormal.transform.localScale = originalSize;

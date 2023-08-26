@@ -9,7 +9,7 @@ public class characterScript : MonoBehaviour
     public joystickX joystickInput;
     
     SpriteRenderer sprite;
-    [SerializeField] private float walkSpeed, jumpSpeed, coyoteTime, coyoteTimeSet;
+    [SerializeField] private float walkSpeed, jumpSpeed, minimumValueToStartMovingOnX, coyoteTime, coyoteTimeSet;
     public bool onGround, toRight, toLeft, toGround, jumpPressed;
 
     private string
@@ -36,6 +36,8 @@ public class characterScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        float stateInfo = _animator.GetCurrentAnimatorStateInfo(0).speed;
+
         doNothingVector = new Vector2(transform.position.x, transform.position.y);
 
         RaycastHit2D[] raysDown = Physics2D.RaycastAll(gameObject.transform.position, Vector2.down, 2.8f);
@@ -51,39 +53,47 @@ public class characterScript : MonoBehaviour
         }
 
         // CHARACTER MOVEMENT
-        if (toRight && joystickInput.movementX > 0)
+        if (toRight && joystickInput.getAxisRaw > 0)
         {
             transform.position = doNothingVector;
         } 
 
-        else if (toLeft && joystickInput.movementX < 0)
+        else if (toLeft && joystickInput.getAxisRaw < 0)
         {
             transform.position = doNothingVector;
         }
-        else { transform.position = new Vector2(transform.position.x + joystickInput.movementX * walkSpeed * Time.deltaTime, transform.position.y); }
+        else if (joystickInput.getAxisX > minimumValueToStartMovingOnX || joystickInput.getAxisX < -minimumValueToStartMovingOnX)
+        {
+            transform.position = new Vector2(transform.position.x + joystickInput.getAxisX * walkSpeed * Time.deltaTime, transform.position.y);
+        }
+
+
 
         // SIMPLE FLIP OF CHARACTER SPRITE
-        if (joystickInput.movementX > 0)
+        if (joystickInput.getAxisRaw > 0)
         {
             sprite.flipX = false;
         }
-        else if (joystickInput.movementX < 0)
+        else if (joystickInput.getAxisRaw < 0)
         {
             sprite.flipX = true;
         }
 
-        // RUNNING ANIMATION IF INPUT.MOVEMENTX HAS A VALUE
-        if (onGround && joystickInput.movementX != 0)
+        // RUNNING ANIMATION IF INPUT.getAxisRaw HAS A VALUE
+        if (onGround && joystickInput.getAxisX >= minimumValueToStartMovingOnX || onGround && joystickInput.getAxisX <= -minimumValueToStartMovingOnX)
         {
+            float proportionalSpeed = joystickInput.getAxisX;
             setCurrentStateTo(run_anim_str);
+            _animator.SetFloat("runSpeed", proportionalSpeed);
+
         }
 
-        // CHARACTER JUMP
+        // CHARACTER JUMP // REMOVE THE DEPENDENCIE OF ONGROUND FORM INPUT.CS AND FIX IT WITH A COYOTE TIME
         if (joystickInput.touchedJumpButton)
         {
             GetComponent<Rigidbody2D>().velocity = new Vector3(0f, jumpSpeed, 0f);
             joystickInput.touchedJumpButton = false;
-
+            jumpSound.Play();
         }
 
         // ON AIR
@@ -108,7 +118,8 @@ public class characterScript : MonoBehaviour
         // SECON PARAMETER (DELTED, REPLACED BY EXTERNAL INPUT .CS) = WHEN YOU RUN, JUMP, AND KEEP THE JUMP BUTTON PRESSED, AND THE SUDDENLY RELEASE THE MOVE BUTTON THE RUN ANIMATION WILL KEEP LOOPIN WITHOUT POSITION CHANGE
         // THIS MAKES SURE THAT IF THERE'S 1 TOUCH AND IT IS ON THE JUMP BUTTON THE ANIMATION WILL CHANGE TO IDLE 
         if (Input.touchCount <= 0 && onGround || Input.touchCount == 1 && onGround && _animator.GetCurrentAnimatorClipInfo(0)[0].clip.name == jump_anim_str
-            || Input.touchCount == 1 && onGround && joystickInput.movementX == 0 && _animator.GetCurrentAnimatorClipInfo(0)[0].clip.name == run_anim_str) // || Input.touchCount == 1 && onGround) // REPLACED BY EXTERNAL INPUT .CS // && jumpPressed)
+            || Input.touchCount == 1 && onGround && joystickInput.getAxisRaw == 0 && _animator.GetCurrentAnimatorClipInfo(0)[0].clip.name == run_anim_str 
+            || joystickInput.getAxisX > -minimumValueToStartMovingOnX && joystickInput.getAxisX < minimumValueToStartMovingOnX && onGround) // || Input.touchCount == 1 && onGround) // REPLACED BY EXTERNAL INPUT .CS // && jumpPressed)
         {
             // REPLACED BY EXTERNAL INPUT .CS
             // jumpPressed = false;
@@ -116,7 +127,9 @@ public class characterScript : MonoBehaviour
             setCurrentStateTo(idle_anim_str);
         }
 
+        
 
+        // Debug.Log(stateInfo);
     }
 
     void setCurrentStateTo(string newState)
