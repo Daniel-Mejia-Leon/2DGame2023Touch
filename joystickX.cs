@@ -38,7 +38,7 @@ public class joystickX : MonoBehaviour
         toScaleButtonVector2 = new Vector2(toScaleButtonOnPressed, toScaleButtonOnPressed);
         referenceInitialPos = new Vector2(0, 0);
         joystickInitialPos = new Vector2(0, 0);
-        Debug.Log(joystickInitialPos);
+        //Debug.Log(joystickInitialPos);
         touchedJoyWhenOnCenter = false;
         touchedJumpButton = true;
     }
@@ -66,25 +66,36 @@ public class joystickX : MonoBehaviour
                 }
 
                 // WE MUST REQUIRE AN EXTERNAL INPUT FORM THE CHARACTER (public bool onGround) TO SET IT IN THIS IF, OTHERWISE IT WILL KEEP JUMPING FOREVER WHEN .Began
-                if (hit.transform.CompareTag("jumpButton") && Input.GetTouch(i).phase == TouchPhase.Began && character.onGround)
+                if (hit.transform.CompareTag("jumpButton"))
                 {
-                    // THIS VALUE MUST BE SET BACK TO FALSE EXTERNALLY (WHEN CHARACTER TOUCHES THE GROUND AGAIN)
-                    touchedJumpButton = true;
+                    if (Input.GetTouch(i).phase == TouchPhase.Began)
+                    {
+                        if (character.onGround)
+                        {
+                            // THIS VALUE MUST BE SET BACK TO FALSE EXTERNALLY (WHEN CHARACTER TOUCHES THE GROUND AGAIN)
+                            touchedJumpButton = true;
 
-                    //
-                    hit.collider.gameObject.transform.localScale = toScaleButtonVector2;
-                    //StartCoroutine(setBackButtonToNormalSize(hit.collider.gameObject, originalButtonSize, toScaleButtonVector2));
+                            //
+                            hit.collider.gameObject.transform.localScale = toScaleButtonVector2;
+                            //StartCoroutine(setBackButtonToNormalSize(hit.collider.gameObject, originalButtonSize, toScaleButtonVector2));  
+                        }
+                        else
+                        {
+                            hit.collider.gameObject.transform.localScale = toScaleButtonVector2;
+                            //StartCoroutine(setBackButtonToNormalSize(hit.collider.gameObject, originalButtonSize, toScaleButtonVector2));
+                        }
+
+                    }
+
+                    if (Input.GetTouch(i).phase == TouchPhase.Ended)
+                    {
+                        hit.collider.gameObject.transform.localScale = originalButtonSize;
+                    }
                 }
 
-                if (hit.transform.CompareTag("jumpButton") && Input.GetTouch(i).phase == TouchPhase.Began)
+                if (hit.transform.CompareTag("backgroundCol"))
                 {
-                    hit.collider.gameObject.transform.localScale = toScaleButtonVector2;
-                    //StartCoroutine(setBackButtonToNormalSize(hit.collider.gameObject, originalButtonSize, toScaleButtonVector2));
-                }
-
-                if (hit.transform.CompareTag("jumpButton") && Input.GetTouch(i).phase == TouchPhase.Ended)
-                {
-                    hit.collider.gameObject.transform.localScale = originalButtonSize;
+                    jumpButton.transform.localScale = originalButtonSize;
                 }
 
             }
