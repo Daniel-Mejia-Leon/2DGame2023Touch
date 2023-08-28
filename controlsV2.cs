@@ -81,7 +81,7 @@ public class controlsV2 : MonoBehaviour
         referenceInitialPos = new Vector2(0, 0);
         joystickInitialPos = new Vector2(0, 0);
         pressingJoystick = false;
-        touchedJumpButton = true;
+        touchedJumpButton = false;
     }
 
     // BUGS TO FIX
@@ -217,10 +217,14 @@ public class controlsV2 : MonoBehaviour
             pressingJoystick = false;
             colliderForJoystick.GetComponent<BoxCollider>().enabled = true;
             touchIndexTouchedJoystick = -1;
+            
+            // NO NEED TO SET getAxis TO 0 BECAUSE IT IS BEING DECLARED AS touchV.x ON UPDATE
             getAxisRaw = 0;
 
+            // THIS WILL MAKE THE ACTUALL JOYSTICK DISAPPEAR
             joystickParent.SetActive(false);
 
+            // THIS WILL MAKE THE DUMMY JOYSTICK TO APPEAR INSTEAD OF THE ACTUALL ONE FOR THE FADE OUT ANIMATION
             dummyJoystickPos = joystickParent.transform.position;
 
             if (ableToActivateDummyJoystick)
@@ -234,13 +238,13 @@ public class controlsV2 : MonoBehaviour
 
         }
 
+        // I DONT REMEMBER WHY I PUT THIS HERE (DIDNT TRY WITHOUT IT)
         if (joystick.transform.localPosition.x == 0)
         {
             touchV = new Vector2(0, 0);
             getAxisX = 0f;
         }
 
-        //Debug.Log(touchV.x);
 
     }
 
@@ -252,8 +256,4 @@ public class controlsV2 : MonoBehaviour
         buttonToSetBackToNormal.transform.localScale = originalSize;
     }
 
-    void SetDummyActive()
-    {
-        dummyJoystick.SetActive(true);
-    }
 }

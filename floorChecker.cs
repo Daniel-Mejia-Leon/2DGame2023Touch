@@ -20,5 +20,10 @@ public class floorChecker : MonoBehaviour
         {
             character.onGround = false;
         }
+
+        if (collision.CompareTag("enemyHead"))
+        {
+            character.onEnemy = true;
+        }
     }
 }

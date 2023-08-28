@@ -10,17 +10,20 @@ public class characterScript : MonoBehaviour
     
     SpriteRenderer sprite;
     [SerializeField] private float walkSpeed, jumpSpeed, minimumValueToStartMovingOnX, coyoteTime, coyoteTimeSet;
-    public bool onGround, toRight, toLeft, toGround, jumpPressed;
+    public float life;
+    public bool onGround, toRight, toLeft, toGround, onEnemy, dead, lifeCounterRunning, ableToTakeDamage;
 
     private string
         idle_anim_str = "idle",
         jump_anim_str = "jump",
         run_anim_str = "run",
+        dead_anim_str = "dead",
         current_anim;
 
     [Header("All Sounds")]
     [SerializeField] private AudioSource itemTakenSound;
     [SerializeField] private AudioSource jumpSound;
+    [SerializeField] private AudioSource pedoSound;
 
     // BUGS
     // IF YOU MOVE AND YOU TAP THE TILEMAP TOO, THE CHARACTER WILL ACT WEIRD
@@ -30,13 +33,28 @@ public class characterScript : MonoBehaviour
         sprite = gameObject.GetComponent<SpriteRenderer>();
         _animator = gameObject.GetComponent<Animator>();
         current_anim = idle_anim_str;
-        jumpPressed = true;
+        dead = false;
+        pedoSound.GetComponent<AudioSource>().enabled = false;
+        lifeCounterRunning = true;
+        ableToTakeDamage = true;
     }
+
 
     // Update is called once per frame
     void Update()
     {
-        float stateInfo = _animator.GetCurrentAnimatorStateInfo(0).speed;
+        if (life <= 0 && lifeCounterRunning)
+        {
+            Debug.Log("dead");
+            
+            dead = true;
+            pedoSound.GetComponent<AudioSource>().enabled = true;
+            gameObject.GetComponent<characterScript>().enabled = false;
+            setCurrentStateTo(dead_anim_str);
+            
+            lifeCounterRunning = false;
+        }
+
 
         doNothingVector = new Vector2(transform.position.x, transform.position.y);
 
@@ -89,11 +107,12 @@ public class characterScript : MonoBehaviour
         }
 
         // CHARACTER JUMP // REMOVE THE DEPENDENCIE OF ONGROUND FORM INPUT.CS AND FIX IT WITH A COYOTE TIME
-        if (joystickInput.touchedJumpButton)
+        if (joystickInput.touchedJumpButton || onEnemy && ableToTakeDamage)
         {
             GetComponent<Rigidbody2D>().velocity = new Vector3(0f, jumpSpeed, 0f);
             joystickInput.touchedJumpButton = false;
             jumpSound.Play();
+            onEnemy = false;
         }
 
         // ON AIR
@@ -101,6 +120,10 @@ public class characterScript : MonoBehaviour
         {
             coyoteTime -= Time.deltaTime;
             setCurrentStateTo(jump_anim_str);
+
+            // PUT THIS HERE BECAUSE IF THE CHARACTER JUMPS RIGHT NEXT TO A MUSHROOM IT WILL DO A DOUBLE JUMP BECAUSE THE onEnemy BOOL WILL BE TRUE (NOT SURE WHY
+            // BUT THIS WORKS)
+            onEnemy = false;
         }
 
         // ON GROUND IDLE
@@ -127,9 +150,9 @@ public class characterScript : MonoBehaviour
             setCurrentStateTo(idle_anim_str);
         }
 
+
         
 
-        // Debug.Log(stateInfo);
     }
 
     void setCurrentStateTo(string newState)
@@ -142,6 +165,43 @@ public class characterScript : MonoBehaviour
 
     }
 
+    IEnumerator damageTiltColor()
+    {
+        ableToTakeDamage = false;
+
+        float loops = 3;
+
+        for (float i = 0; i < loops; i++)
+        {
+            Color transparent = new Color(gameObject.GetComponent<SpriteRenderer>().color.r, 1, 1, 0.1f);
+
+            gameObject.GetComponent<SpriteRenderer>().color = transparent;
+
+            yield return new WaitForSeconds(.13f);
+
+            Color greenColor = new Color(1.0f, 1.0f, 1.0f, 1.0f);
+
+            gameObject.GetComponent<SpriteRenderer>().color = greenColor;
+
+            yield return new WaitForSeconds(.13f);
+
+        }
+
+        ableToTakeDamage = true;
+
+    }
+
+    public void damageTaken()
+    {
+        if (ableToTakeDamage)
+        {
+            life -= 1;
+            StartCoroutine(damageTiltColor());
+        }
+
+        
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("item"))
@@ -150,5 +210,10 @@ public class characterScript : MonoBehaviour
             collision.GetComponent<Animator>().SetBool("taken", true);
             itemTakenSound.Play();
         }
+    }
+
+    void destroyOnDead()
+    {
+        Destroy(gameObject, 0f);
     }
 }

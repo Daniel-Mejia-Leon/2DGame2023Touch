@@ -12,6 +12,19 @@ public class leftChecker : MonoBehaviour
         {
             character.toLeft = true;
         }
+
+        else if (collision.CompareTag("mushroom"))
+        {
+            character.damageTaken();
+        }
+    }
+
+    private void OnTriggerStay2D(Collider2D collision)
+    {
+        if (collision.CompareTag("mushroom"))
+        {
+            character.damageTaken();
+        }
     }
 
     private void OnTriggerExit2D(Collider2D collision)
