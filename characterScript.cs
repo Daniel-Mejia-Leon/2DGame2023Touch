@@ -6,7 +6,7 @@ public class characterScript : MonoBehaviour
 {
     Vector2 doNothingVector;
     Animator _animator;
-    public joystickX joystickInput;
+    public controlsV2 joystickInput;
     
     SpriteRenderer sprite;
     [SerializeField] private float walkSpeed, jumpSpeed, minimumValueToStartMovingOnX, coyoteTime, coyoteTimeSet;
