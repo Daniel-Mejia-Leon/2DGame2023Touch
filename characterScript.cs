@@ -11,7 +11,7 @@ public class characterScript : MonoBehaviour
     SpriteRenderer sprite;
     [SerializeField] private float walkSpeed, jumpSpeed, minimumValueToStartMovingOnX, coyoteTime, coyoteTimeSet;
     public float life;
-    public bool onGround, toRight, toLeft, toGround, onEnemy, dead, lifeCounterRunning, ableToTakeDamage;
+    public bool onGround, toRight, toLeft, toGround, onEnemy, dead, lifeCounterRunning, ableToTakeDamage, trampolinePush;
 
     private string
         idle_anim_str = "idle",
@@ -21,10 +21,11 @@ public class characterScript : MonoBehaviour
         current_anim;
 
     [Header("All Sounds")]
-    [SerializeField] private AudioSource itemTakenSound;
+    public AudioSource itemTakenSound;
     [SerializeField] private AudioSource jumpSound;
-    [SerializeField] private AudioSource pedoSound;
+    [SerializeField] AudioSource pedoSound;
 
+    [SerializeField] private GameObject heart1, heart2, heart3;
     // BUGS
     // IF YOU MOVE AND YOU TAP THE TILEMAP TOO, THE CHARACTER WILL ACT WEIRD
 
@@ -37,24 +38,62 @@ public class characterScript : MonoBehaviour
         pedoSound.GetComponent<AudioSource>().enabled = false;
         lifeCounterRunning = true;
         ableToTakeDamage = true;
+        setCurrentStateTo(idle_anim_str);
     }
 
 
     // Update is called once per frame
     void Update()
     {
-        if (life <= 0 && lifeCounterRunning)
+        switch (life)
         {
-            Debug.Log("dead");
-            
-            dead = true;
-            pedoSound.GetComponent<AudioSource>().enabled = true;
-            gameObject.GetComponent<characterScript>().enabled = false;
-            setCurrentStateTo(dead_anim_str);
-            
-            lifeCounterRunning = false;
+            case 3:
+                heart1.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1f);
+                heart2.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1f);
+                heart3.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1f);
+                //deadText.gameObject.SetActive(false);
+                break;
+            case 2:
+                heart1.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1f);
+                heart2.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1f);
+                heart3.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.2f);
+                //deadText.gameObject.SetActive(false);
+                break;
+            case 1:
+                heart1.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1f);
+                heart2.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.2f);
+                heart3.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.2f);
+                //deadText.gameObject.SetActive(false);
+                break;
+            case 0:
+                if (lifeCounterRunning)
+                {
+                    heart1.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.2f);
+                    heart2.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.2f);
+                    heart3.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.2f);
+
+                    Debug.Log("dead");
+
+                    dead = true;
+                    pedoSound.GetComponent<AudioSource>().enabled = true;
+                    gameObject.GetComponent<characterScript>().enabled = false;
+                    setCurrentStateTo(dead_anim_str);
+
+                    lifeCounterRunning = false;
+                }
+                break;
         }
 
+        if (life > 3)
+        {
+            life = 3;
+        }
+
+        if (trampolinePush)
+        {
+            GetComponent<Rigidbody2D>().velocity = new Vector3(0f, jumpSpeed + 12, 0f);
+            trampolinePush = false;
+        }
 
         doNothingVector = new Vector2(transform.position.x, transform.position.y);
 
@@ -107,7 +146,7 @@ public class characterScript : MonoBehaviour
         }
 
         // CHARACTER JUMP // REMOVE THE DEPENDENCIE OF ONGROUND FORM INPUT.CS AND FIX IT WITH A COYOTE TIME
-        if (joystickInput.touchedJumpButton || onEnemy && ableToTakeDamage)
+        if (joystickInput.touchedJumpButton || onEnemy) // && ableToTakeDamage) // remove this because it looks like the character doesnt jump when killing an enemy
         {
             GetComponent<Rigidbody2D>().velocity = new Vector3(0f, jumpSpeed, 0f);
             joystickInput.touchedJumpButton = false;
@@ -169,7 +208,7 @@ public class characterScript : MonoBehaviour
     {
         ableToTakeDamage = false;
 
-        float loops = 3;
+        float loops = 7;
 
         for (float i = 0; i < loops; i++)
         {
@@ -191,25 +230,24 @@ public class characterScript : MonoBehaviour
 
     }
 
-    public void damageTaken()
+    IEnumerator addLifeNoPlus()
     {
+        
+        yield return new WaitForSeconds(0.2f);
+        life+=1;
+        Debug.Log("yieldReturn");
+    }
+
+    public void damageTaken(int damage)
+    {
+
         if (ableToTakeDamage)
         {
-            life -= 1;
+            life -= damage;
             StartCoroutine(damageTiltColor());
         }
 
         
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.CompareTag("item"))
-        {
-            collision.GetComponent<CircleCollider2D>().enabled = false;
-            collision.GetComponent<Animator>().SetBool("taken", true);
-            itemTakenSound.Play();
-        }
     }
 
     void destroyOnDead()

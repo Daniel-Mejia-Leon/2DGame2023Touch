@@ -36,7 +36,9 @@ public class headCollider : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("groundChecker"))
         {
-            Debug.Log("test");
+            //Debug.Log("test");
+            parent.GetComponent<mushRoom>().mushKillSound.Play();
+            parent.GetComponent<Animator>().Play("hitMushroom");
             gameObject.GetComponent<CapsuleCollider2D>().enabled = false;
             feet.GetComponent<BoxCollider2D>().enabled = false;
             parent.GetComponent<mushRoom>().enabled = false;

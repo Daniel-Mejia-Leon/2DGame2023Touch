@@ -12,6 +12,17 @@ public class floorChecker : MonoBehaviour
         {
             character.onGround = true;
         }
+
+        if (collision.CompareTag("enemyHead"))
+        {
+            character.onEnemy = true;
+        }
+
+        if (collision.CompareTag("trampoline"))
+        {
+            character.trampolinePush = true;
+        }
+
     }
 
     private void OnTriggerExit2D(Collider2D collision)
@@ -21,9 +32,6 @@ public class floorChecker : MonoBehaviour
             character.onGround = false;
         }
 
-        if (collision.CompareTag("enemyHead"))
-        {
-            character.onEnemy = true;
-        }
+        
     }
 }

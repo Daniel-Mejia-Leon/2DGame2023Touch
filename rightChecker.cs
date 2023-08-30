@@ -13,17 +13,17 @@ public class rightChecker : MonoBehaviour
             character.toRight = true;
         }
 
-        else if (collision.CompareTag("mushroom"))
+        else if (collision.CompareTag("enemy"))
         {
-            character.damageTaken();
+            character.damageTaken(1);
         }
     }
 
     private void OnTriggerStay2D(Collider2D collision)
     {
-        if (collision.CompareTag("mushroom"))
+        if (collision.CompareTag("enemy"))
         {
-            character.damageTaken();
+            character.damageTaken(1);
         }
     }
 

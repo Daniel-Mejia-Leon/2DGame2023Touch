@@ -6,6 +6,7 @@ public class mushRoom : MonoBehaviour
 {
     public float speed;
     public bool colDetected;
+    public AudioSource mushKillSound;
 
     void Start()
     {
@@ -36,7 +37,7 @@ public class mushRoom : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("ground") || collision.CompareTag("mushroom") || collision.CompareTag("characterWallChecker"))
+        if (collision.CompareTag("ground") || collision.CompareTag("enemy") || collision.CompareTag("characterWallChecker"))
         {
             speed *= -1;
         }

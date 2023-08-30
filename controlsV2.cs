@@ -188,7 +188,7 @@ public class controlsV2 : MonoBehaviour
 
             // THIS IS FOR THE JOYSTICK NOT TO GO OUTSITE ITS CONTAINER // THIS IS BEING APPLIED TO THE VECTOR GOTTEN FORM THE INPUT.TOUCH -
             // THIS CAN/SHOULD ALSO BE APPLIED TO THE JOYSTICK POSITION INSTEAD OF THE VECTOR GOTTEM FROM THE INPUT
-            touchV.x = Mathf.Clamp(touchV.x, -1.2f, 1.2f);
+            touchV.x = Mathf.Clamp(touchV.x, -1.4f, 1.4f);
 
             // THIS WILL SET THE JOYSTICK POSITION TO THE CALCULATED POSITION BASED ON THE REFERENCE POINT, WHICH WILL BE ALWAYS SET WHERE THE USER TAPS
             joystick.transform.localPosition = new Vector2(touchV.x, 0f);
