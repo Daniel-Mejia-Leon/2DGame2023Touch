@@ -22,6 +22,11 @@ public class floorChecker : MonoBehaviour
         {
             character.trampolinePush = true;
         }
+        
+        if (collision.CompareTag("boxItem"))
+        {
+            character.onBox = true;
+        }
 
     }
 

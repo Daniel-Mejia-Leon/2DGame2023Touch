@@ -10,6 +10,8 @@ public class plant : MonoBehaviour
     Animator _animator;
     GameObject cannonBall;
     List<GameObject> cannonBallList = new List<GameObject>();
+
+    // REMEBER TO FIX THE COLLIDER OF THE HEAD WHEN FLIPING X, IT IS NOT IN THE RIGHT PLACE WHEN YOU FLIP X
     void Start()
     {
         _animator = gameObject.GetComponent<Animator>();
@@ -63,7 +65,7 @@ public class plant : MonoBehaviour
                 if (gameObject.GetComponent<SpriteRenderer>().flipX == false)
                 {
                     cannonBall.transform.position = new Vector2(cannonBall.transform.position.x - speedBullet * Time.deltaTime, cannonBall.transform.position.y);
-                    Destroy(cannonBall, 2f);
+                    Destroy(cannonBall, 2.7f);
 
                 }
 
@@ -71,24 +73,13 @@ public class plant : MonoBehaviour
                 {
                     cannonBall.GetComponent<SpriteRenderer>().flipX = true;
                     cannonBall.transform.position = new Vector2(cannonBall.transform.position.x + speedBullet * Time.deltaTime, cannonBall.transform.position.y);
-                    Destroy(cannonBall, 2f);
+                    Destroy(cannonBall, 2.7f);
                 }
             }
         }
 
 
-        /*laser.transform.up = character.transform.position - laser.transform.position;
 
-        RaycastHit2D[] raysToCharacter = Physics2D.RaycastAll(laser.transform.position, character.transform.position - laser.transform.position, laserDistance);
-
-        foreach (RaycastHit2D hit in raysToCharacter)
-        {
-            if (hit.transform.tag == "Player")
-            {
-                Debug.DrawRay(laser.transform.position, (character.transform.position - laser.transform.position) * hit.distance, Color.blue);
-            }
-            
-        }*/
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

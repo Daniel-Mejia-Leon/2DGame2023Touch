@@ -6,7 +6,7 @@ public class mushRoom : MonoBehaviour
 {
     public float speed;
     public bool colDetected;
-    public AudioSource mushKillSound;
+    //public AudioSource mushKillSound;
 
     void Start()
     {

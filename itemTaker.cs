@@ -26,6 +26,24 @@ public class itemTaker : MonoBehaviour
             character.life++;
         }
 
+        if (collision.CompareTag("itemFullLife"))
+        {
+            collision.GetComponent<CircleCollider2D>().enabled = false;
+            collision.GetComponent<Animator>().SetBool("taken", true);
+            character.heartTakenSound.Play();
+            character.life=9;
+        }
+
+        if (collision.CompareTag("heartFromBunny"))
+        {
+            character.heartTaken = false;
+            collision.GetComponent<CircleCollider2D>().enabled = false;
+            collision.GetComponent<Rigidbody2D>().gravityScale = 0f;
+            collision.GetComponent<Animator>().SetBool("taken", true);
+            character.heartTakenSound.Play();
+            //character.life = 9;
+        }
+
         if (collision.CompareTag("instaKill"))
         {
             character.damageTaken(3);

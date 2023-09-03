@@ -17,6 +17,11 @@ public class rightChecker : MonoBehaviour
         {
             character.damageTaken(1);
         }
+
+        else if (collision.CompareTag("bullet"))
+        {
+            character.damageTaken(1);
+        }
     }
 
     private void OnTriggerStay2D(Collider2D collision)

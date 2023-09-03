@@ -6,39 +6,43 @@ public class characterScript : MonoBehaviour
 {
     Vector2 doNothingVector;
     Animator _animator;
+    new Rigidbody2D rigidbody;
     public controlsV2 joystickInput;
+    //public bunny buni;
     
     SpriteRenderer sprite;
     [SerializeField] private float walkSpeed, jumpSpeed, minimumValueToStartMovingOnX, coyoteTime, coyoteTimeSet;
-    public float life;
-    public bool onGround, toRight, toLeft, toGround, onEnemy, dead, lifeCounterRunning, ableToTakeDamage, trampolinePush;
+    public float life, heartPiecesCounter;
+    public bool onGround, toRight, toLeft, toGround, onEnemy, onBox, lifeCounterRunning, ableToTakeDamage, trampolinePush, heartTaken, dead;
 
     private string
         idle_anim_str = "idle",
+        jumpRoll_anim_str = "jumpRoll",
         jump_anim_str = "jump",
+        fall_anim_str = "fall",
         run_anim_str = "run",
         dead_anim_str = "dead",
         current_anim;
 
     [Header("All Sounds")]
-    public AudioSource itemTakenSound;
-    [SerializeField] private AudioSource jumpSound;
-    [SerializeField] AudioSource pedoSound;
+    public AudioSource itemTakenSound, heartTakenSound, boxBreakSound;
+    [SerializeField] private AudioSource jumpSound, trampolineSound, pedoSound, mushKillSound;
 
-    [SerializeField] private GameObject heart1, heart2, heart3;
+    public GameObject heart1, heart2, heart3, heart11, heart12, heart21, heart22, heart31, heart32;
     // BUGS
     // IF YOU MOVE AND YOU TAP THE TILEMAP TOO, THE CHARACTER WILL ACT WEIRD
 
     void Start()
     {
+        rigidbody = gameObject.GetComponent<Rigidbody2D>();
         sprite = gameObject.GetComponent<SpriteRenderer>();
         _animator = gameObject.GetComponent<Animator>();
         current_anim = idle_anim_str;
-        dead = false;
         pedoSound.GetComponent<AudioSource>().enabled = false;
         lifeCounterRunning = true;
         ableToTakeDamage = true;
         setCurrentStateTo(idle_anim_str);
+        dead = false;
     }
 
 
@@ -47,53 +51,182 @@ public class characterScript : MonoBehaviour
     {
         switch (life)
         {
+            case 9:
+                heart1.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1f);
+                heart11.SetActive(false);
+                heart12.SetActive(false);
+                // heart1.SetActive(true);
+                heart2.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1f);
+                heart21.SetActive(false);
+                heart22.SetActive(false);
+                // heart2.SetActive(true);
+                heart3.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1f);
+                heart31.SetActive(false);
+                heart32.SetActive(false);
+                break;
+
+            case 8:
+                heart1.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1f);
+                heart11.SetActive(false);
+                heart12.SetActive(false);
+                // heart1.SetActive(true);
+                heart2.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1f);
+                heart21.SetActive(false);
+                heart22.SetActive(false);
+                // heart2.SetActive(true);
+                heart3.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.2f);
+                heart31.SetActive(true);
+                heart32.SetActive(true);
+                break;
+
+            case 7:
+                heart1.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1f);
+                heart11.SetActive(false);
+                heart12.SetActive(false);
+                // heart1.SetActive(true);
+                heart2.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1f);
+                heart21.SetActive(false);
+                heart22.SetActive(false);
+                // heart2.SetActive(true);
+                heart3.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.2f);
+                heart31.SetActive(true);
+                heart32.SetActive(false);
+                break;
+
+            case 6:
+                heart1.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1f);
+                heart11.SetActive(false);
+                heart12.SetActive(false);
+                // heart1.SetActive(true);
+                heart2.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1f);
+                heart21.SetActive(false);
+                heart22.SetActive(false);
+                // heart2.SetActive(true);
+                heart3.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.2f);
+                heart31.SetActive(false);
+                heart32.SetActive(false);
+                break;
+
+            case 5:
+                heart1.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1f);
+                heart11.SetActive(false);
+                heart12.SetActive(false);
+                // heart1.SetActive(true);
+                heart2.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.2f);
+                heart21.SetActive(true);
+                heart22.SetActive(true);
+                // heart2.SetActive(true);
+                heart3.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.2f);
+                heart31.SetActive(false);
+                heart32.SetActive(false);
+                break;
+
+            case 4:
+                heart1.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1f);
+                heart11.SetActive(false);
+                heart12.SetActive(false);
+                // heart1.SetActive(true);
+                heart2.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.2f);
+                heart21.SetActive(true);
+                heart22.SetActive(false);
+                // heart2.SetActive(true);
+                heart3.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.2f);
+                heart31.SetActive(false);
+                heart32.SetActive(false);
+                break;
+
             case 3:
                 heart1.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1f);
-                heart2.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1f);
-                heart3.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1f);
-                //deadText.gameObject.SetActive(false);
-                break;
-            case 2:
-                heart1.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1f);
-                heart2.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1f);
-                heart3.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.2f);
-                //deadText.gameObject.SetActive(false);
-                break;
-            case 1:
-                heart1.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1f);
+                heart11.SetActive(false);
+                heart12.SetActive(false);
+                // heart1.SetActive(true);
                 heart2.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.2f);
+                heart21.SetActive(false);
+                heart22.SetActive(false);
+                // heart2.SetActive(true);
                 heart3.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.2f);
-                //deadText.gameObject.SetActive(false);
+                heart31.SetActive(false);
+                heart32.SetActive(false);
                 break;
-            case 0:
-                if (lifeCounterRunning)
-                {
-                    heart1.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.2f);
-                    heart2.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.2f);
-                    heart3.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.2f);
 
-                    Debug.Log("dead");
-
-                    dead = true;
-                    pedoSound.GetComponent<AudioSource>().enabled = true;
-                    gameObject.GetComponent<characterScript>().enabled = false;
-                    setCurrentStateTo(dead_anim_str);
-
-                    lifeCounterRunning = false;
-                }
+            case 2:
+                heart1.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.2f);
+                heart11.SetActive(true);
+                heart12.SetActive(true);
+                // heart1.SetActive(true);
+                heart2.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.2f);
+                heart21.SetActive(false);
+                heart22.SetActive(false);
+                // heart2.SetActive(true);
+                heart3.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.2f);
+                heart31.SetActive(false);
+                heart32.SetActive(false);
                 break;
+
+            case 1:
+                heart1.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.2f);
+                heart11.SetActive(true);
+                heart12.SetActive(false);
+                // heart1.SetActive(true);
+                heart2.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.2f);
+                heart21.SetActive(false);
+                heart22.SetActive(false);
+                // heart2.SetActive(true);
+                heart3.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.2f);
+                heart31.SetActive(false);
+                heart32.SetActive(false);
+                break;
+
         }
 
-        if (life > 3)
+        if (life <= 0 && lifeCounterRunning)
         {
-            life = 3;
+            setCurrentStateTo(dead_anim_str);
+            heart1.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.2f);
+            heart11.SetActive(false);
+            heart12.SetActive(false);
+            // heart1.SetActive(true);
+            heart2.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.2f);
+            heart21.SetActive(false);
+            heart22.SetActive(false);
+            // heart2.SetActive(true);
+            heart3.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.2f);
+            heart31.SetActive(false);
+            heart32.SetActive(false);
+
+
+            pedoSound.GetComponent<AudioSource>().enabled = true;
+            
+            
+            lifeCounterRunning = false;
+            
+            dead = true;
+            gameObject.GetComponent<characterScript>().enabled = false;
         }
 
-        if (trampolinePush)
+        if (heartTaken)
         {
-            GetComponent<Rigidbody2D>().velocity = new Vector3(0f, jumpSpeed + 12, 0f);
-            trampolinePush = false;
+
+            if (life >= 6)
+            {
+                life = 6;
+            }
+
+            heart3.SetActive(false);
+            
         }
+
+        else
+        {
+            heart3.SetActive(true);
+        }
+
+        if (life > 9)
+        {
+            life = 9;
+        }
+
+
 
         doNothingVector = new Vector2(transform.position.x, transform.position.y);
 
@@ -146,19 +279,53 @@ public class characterScript : MonoBehaviour
         }
 
         // CHARACTER JUMP // REMOVE THE DEPENDENCIE OF ONGROUND FORM INPUT.CS AND FIX IT WITH A COYOTE TIME
-        if (joystickInput.touchedJumpButton || onEnemy) // && ableToTakeDamage) // remove this because it looks like the character doesnt jump when killing an enemy
+        if (joystickInput.touchedJumpButton) // && ableToTakeDamage) // remove this because it looks like the character doesnt jump when killing an enemy
         {
-            GetComponent<Rigidbody2D>().velocity = new Vector3(0f, jumpSpeed, 0f);
+            rigidbody.velocity = new Vector3(0f, jumpSpeed, 0f);
             joystickInput.touchedJumpButton = false;
             jumpSound.Play();
             onEnemy = false;
         }
 
+        if (onEnemy)
+        {
+            rigidbody.velocity = new Vector3(0f, jumpSpeed, 0f);
+            joystickInput.touchedJumpButton = false;
+            mushKillSound.Play();
+            onEnemy = false;
+        }
+
+        if (onBox)
+        {
+            rigidbody.velocity = new Vector3(0f, jumpSpeed + 2, 0f);
+            joystickInput.touchedJumpButton = false;
+            onBox = false;
+            boxBreakSound.Play();
+            //onEnemy = false;
+        }
+
+        if (trampolinePush)
+        {
+            rigidbody.velocity = new Vector3(0f, jumpSpeed + 12, 0f);
+            trampolineSound.Play();
+            trampolinePush = false;
+        }
+
+
         // ON AIR
         if (!onGround)
         {
             coyoteTime -= Time.deltaTime;
-            setCurrentStateTo(jump_anim_str);
+
+            if (rigidbody.velocity.y > 0)
+            {
+                setCurrentStateTo(jump_anim_str); 
+            }
+
+            if (rigidbody.velocity.y < 0)
+            {
+                setCurrentStateTo(fall_anim_str);
+            }
 
             // PUT THIS HERE BECAUSE IF THE CHARACTER JUMPS RIGHT NEXT TO A MUSHROOM IT WILL DO A DOUBLE JUMP BECAUSE THE onEnemy BOOL WILL BE TRUE (NOT SURE WHY
             // BUT THIS WORKS)
@@ -188,7 +355,6 @@ public class characterScript : MonoBehaviour
 
             setCurrentStateTo(idle_anim_str);
         }
-
 
         
 
@@ -252,6 +418,7 @@ public class characterScript : MonoBehaviour
 
     void destroyOnDead()
     {
-        Destroy(gameObject, 0f);
+        // I added the item script to get the destroy method for the animation of dead
+        //Destroy(gameObject, 0f);
     }
 }

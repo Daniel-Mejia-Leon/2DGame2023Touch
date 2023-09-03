@@ -37,11 +37,12 @@ public class headCollider : MonoBehaviour
         if (collision.gameObject.CompareTag("groundChecker"))
         {
             //Debug.Log("test");
-            parent.GetComponent<mushRoom>().mushKillSound.Play();
+            //parent.GetComponent<mushRoom>().mushKillSound.Play();
             parent.GetComponent<Animator>().Play("hitMushroom");
             gameObject.GetComponent<CapsuleCollider2D>().enabled = false;
             feet.GetComponent<BoxCollider2D>().enabled = false;
             parent.GetComponent<mushRoom>().enabled = false;
+            parent.GetComponent<BoxCollider2D>().enabled = false;
             parent.GetComponent<Rigidbody2D>().gravityScale = 4f;
             parent.GetComponent<Rigidbody2D>().velocity = new Vector3(3, 10, 0f);
             Destroy(parent, 1f);
